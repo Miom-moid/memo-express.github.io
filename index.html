@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>لعبة الثعبان - ميمو</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>لعبة الثعبان 🐍</h1>
+    <p>استخدم الأسهم لتحريك الثعبان. لا تصطدم بالجدران أو بنفسك!</p>
+
+    <div class="game-container">
+      <canvas id="gameCanvas" width="400" height="400"></canvas>
+    </div>
+
+    <div class="score-board">
+      <h2>الدرجة: <span id="score">0</span></h2>
+      <h3>أعلى درجة: <span id="highScore">0</span></h3>
+    </div>
+
+    <button id="restartBtn">جرب مرة أخرى</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
