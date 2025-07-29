@@ -3,25 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>لعبة الثعبان - ميمو</title>
+  <title>ميمو إكسبريس - توصيل طعام سريع</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
 </head>
 <body>
-  <div class="container">
-    <h1>لعبة الثعبان 🐍</h1>
-    <p>استخدم الأسهم لتحريك الثعبان. لا تصطدم بالجدران أو بنفسك!</p>
 
-    <div class="game-container">
-      <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <!-- الشريط العلوي -->
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        <i class="fas fa-utensils"></i> ميمو إكسبريس
+      </div>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="#menu" class="active">القائمة</a></li>
+          <li><a href="#cart">سلتي <span id="cart-count">0</span></a></li>
+          <li><a href="#contact">اتصل بنا</a></li>
+        </ul>
+      </nav>
     </div>
+  </header>
 
-    <div class="score-board">
-      <h2>الدرجة: <span id="score">0</span></h2>
-      <h3>أعلى درجة: <span id="highScore">0</span></h3>
+  <!-- القسم الرئيسي -->
+  <section id="home" class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>ميمو إكسبريس</h1>
+        <p>أفضل وجبات الطعام تُوصَّل إلى باب منزلك خلال 30 دقيقة!</p>
+        <a href="#menu" class="btn-primary">تصفح القائمة</a>
+      </div>
     </div>
+  </section>
 
-    <button id="restartBtn">جرب مرة أخرى</button>
-  </div>
+  <!-- قائمة الطعام -->
+  <section id="menu" class="menu">
+    <div class="container">
+      <h2>قائمة الطعام</h2>
+      <div class="menu-grid" id="menu-grid">
+        <!-- سيتم ملؤها بالجافا سكريبت -->
+      </div>
+    </div>
+  </section>
+
+  <!-- السلة -->
+  <section id="cart" class="cart-section">
+    <div class="container">
+      <h2>سلتي (<span id="cart-items-count">0</span> عنصر)</h2>
+      <div id="cart-items">
+        <p class="empty">سلتك فارغة. أضف بعض الأطباق من القائمة.</p>
+      </div>
+      <div class="cart-total">
+        <h3>الإجمالي: <span id="total-price">0</span> درهم</h3>
+      </div>
+      <button id="checkout-btn" class="btn-primary" disabled>توصيل الطلب</button>
+    </div>
+  </section>
+
+  <!-- نموذج التوصيل -->
+  <section id="checkout-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-modal">&times;</span>
+      <h2>أكّد طلبك</h2>
+      <form id="order-form">
+        <input type="text" id="customer-name" placeholder="اسمك الكامل" required />
+        <input type="text" id="customer-address" placeholder="عنوانك (الحي، الشارع، رقم المنزل)" required />
+        <input type="tel" id="customer-phone" placeholder="رقم الجوال" required />
+        <textarea id="order-notes" placeholder="ملاحظات إضافية (مثل: لا فلفل حار)" rows="3"></textarea>
+        <p><strong>الإجمالي:</strong> <span id="final-total">0</span> درهم</p>
+        <button type="submit">تأكيد الطلب</button>
+      </form>
+      <div id="order-message"></div>
+    </div>
+  </section>
+
+  <!-- اتصل بنا -->
+  <section id="contact" class="contact">
+    <div class="container">
+      <h2>اتصل بنا</h2>
+      <p>لأي استفسار، تواصل معنا على:</p>
+      <p><i class="fas fa-phone"></i> 06 12-34-56-78</p>
+      <p><i class="fas fa-envelope"></i> support@memo-express.com</p>
+      <p><i class="fas fa-map-marker-alt"></i> الدار البيضاء، المغرب</p>
+    </div>
+  </section>
+
+  <!-- التذييل -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 ميمو إكسبريس. جميع الحقوق محفوظة.</p>
+    </div>
+  </footer>
 
   <script src="script.js"></script>
 </body>
