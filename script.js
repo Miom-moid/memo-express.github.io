@@ -1,154 +1,199 @@
-// إعدادات اللعبة
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const scoreElement = document.getElementById("score");
-const highScoreElement = document.getElementById("highScore");
-const restartBtn = document.getElementById("restartBtn");
-
-// حجم كل جزء من الثعبان
-const box = 20;
-
-// الثعبان
-let snake = [
-  { x: 9 * box, y: 10 * box }
+// قائمة الأطباق
+const menuItems = [
+  {
+    id: 1,
+    name: "برجر لحم مع البطاطس",
+    price: 45,
+    image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    category: "برجر"
+  },
+  {
+    id: 2,
+    name: "بيتزا بeperoni",
+    price: 60,
+    image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    category: "بيتزا"
+  },
+  {
+    id: 3,
+    name: "سوشي ميكس",
+    price: 80,
+    image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    category: "سوشي"
+  },
+  {
+    id: 4,
+    name: "طبق كباب مشكل",
+    price: 55,
+    image: "https://images.unsplash.com/photo-1544025162-d7689ab5ce26?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    category: "مشاوي"
+  },
+  {
+    id: 5,
+    name: "سلطة سيزر بالدجاج",
+    price: 35,
+    image: "https://images.unsplash.com/photo-1546793665-c7879a16c573?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    category: "سلطة"
+  },
+  {
+    id: 6,
+    name: "كاساديا لحم",
+    price: 50,
+    image: "https://images.unsplash.com/photo-1583311590989-56370993c5dc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    category: "مكسيكي"
+  }
 ];
 
-// الاتجاه
-let direction = null;
+// السلة
+let cart = [];
 
-// الطعام
-let food = {
-  x: Math.floor(Math.random() * 19 + 1) * box,
-  y: Math.floor(Math.random() * 19 + 1) * box
+// عرض الأطباق
+function displayMenu() {
+  const menuGrid = document.getElementById("menu-grid");
+  menuGrid.innerHTML = "";
+
+  menuItems.forEach(item => {
+    const menuItem = document.createElement("div");
+    menuItem.className = "menu-item";
+    menuItem.innerHTML = `
+      <img src="${item.image}" alt="${item.name}">
+      <div class="menu-item-content">
+        <h3>${item.name}</h3>
+        <p>ممتاز لعشاق النكهات القوية</p>
+        <div class="price">${item.price} درهم</div>
+        <button class="add-to-cart" onclick="addToCart(${item.id})">
+          <i class="fas fa-shopping-cart"></i> أضف إلى السلة
+        </button>
+      </div>
+    `;
+    menuGrid.appendChild(menuItem);
+  });
+}
+
+// إضافة إلى السلة
+function addToCart(id) {
+  const item = menuItems.find(i => i.id === id);
+  const cartItem = cart.find(i => i.id === id);
+
+  if (cartItem) {
+    cartItem.quantity += 1;
+  } else {
+    cart.push({ ...item, quantity: 1 });
+  }
+
+  updateCart();
+}
+
+// حذف من السلة
+function removeFromCart(id) {
+  cart = cart.filter(item => item.id !== id);
+  updateCart();
+}
+
+// تحديث السلة
+function updateCart() {
+  const cartItems = document.getElementById("cart-items");
+  const cartCount = document.getElementById("cart-count");
+  const cartItemsCount = document.getElementById("cart-items-count");
+  const totalPrice = document.getElementById("total-price");
+  const checkoutBtn = document.getElementById("checkout-btn");
+
+  // تحديث العدد
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  cartCount.textContent = totalItems;
+  cartItemsCount.textContent = totalItems;
+
+  // حساب الإجمالي
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  totalPrice.textContent = total;
+
+  // عرض العناصر
+  if (cart.length === 0) {
+    cartItems.innerHTML = '<p class="empty">سلتك فارغة.</p>';
+    checkoutBtn.disabled = true;
+  } else {
+    cartItems.innerHTML = "";
+    cart.forEach(item => {
+      const itemElement = document.createElement("div");
+      itemElement.className = "cart-item";
+      itemElement.innerHTML = `
+        <div class="cart-item-info">
+          <strong>${item.name}</strong> × ${item.quantity}
+          <br>
+          (${item.price} × ${item.quantity} = ${(item.price * item.quantity)} درهم)
+        </div>
+        <div class="cart-item-actions">
+          <button onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
+        </div>
+      `;
+      cartItems.appendChild(itemElement);
+    });
+    checkoutBtn.disabled = false;
+  }
+
+  document.getElementById("final-total").textContent = total;
+}
+
+// نموذج التوصيل
+const modal = document.getElementById("checkout-modal");
+const closeModal = document.getElementById("close-modal");
+const orderForm = document.getElementById("order-form");
+const orderMessage = document.getElementById("order-message");
+
+document.getElementById("checkout-btn").onclick = () => {
+  modal.style.display = "flex";
 };
 
-// الدرجة
-let score = 0;
-let highScore = localStorage.getItem("snakeHighScore") || 0;
-highScoreElement.textContent = highScore;
+closeModal.onclick = () => {
+  modal.style.display = "none";
+};
 
-// التحكم بالأسهم
-document.addEventListener("keydown", changeDirection);
-
-function changeDirection(event) {
-  const key = event.keyCode;
-
-  if (key === 37 && direction !== "RIGHT") direction = "LEFT";  // ←
-  if (key === 38 && direction !== "DOWN")  direction = "UP";    // ↑
-  if (key === 39 && direction !== "LEFT")  direction = "RIGHT"; // →
-  if (key === 40 && direction !== "UP")    direction = "DOWN";  // ↓
-}
-
-// رسم الثعبان
-function drawSnake() {
-  for (let i = 0; i < snake.length; i++) {
-    // لون الرأس أغمق
-    ctx.fillStyle = i === 0 ? "#2c3e50" : "#3498db";
-    ctx.fillRect(snake[i].x, snake[i].y, box, box);
-
-    // الحدود البيضاء
-    ctx.strokeStyle = "#fff";
-    ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+window.onclick = (event) => {
+  if (event.target === modal) {
+    modal.style.display = "none";
   }
-}
+};
 
-// رسم الطعام
-function drawFood() {
-  ctx.fillStyle = "#e74c3c";
-  ctx.fillRect(food.x, food.y, box, box);
-}
+orderForm.onsubmit = (e) => {
+  e.preventDefault();
+  const name = document.getElementById("customer-name").value;
+  const address = document.getElementById("customer-address").value;
+  const phone = document.getElementById("customer-phone").value;
+  const notes = document.getElementById("order-notes").value;
+  const total = document.getElementById("final-total").textContent;
 
-// التحديثات
-function update() {
-  // إذا لم يبدأ الحركة، لا تتحرك
-  if (direction === null) return;
+  // محاكاة إرسال الطلب
+  orderMessage.innerHTML = `
+    <p style="color: green;">
+      تم تأكيد طلبك بنجاح، ${name}!<br>
+      سيتم التوصيل إلى: ${address}<br>
+      الإجمالي: ${total} درهم<br>
+      شكرًا لاختيارك ميمو إكسبريس!
+    </p>
+  `;
 
-  // تحريك الرأس
-  let head = { x: snake[0].x, y: snake[0].y };
+  // مسح النموذج
+  orderForm.reset();
+  setTimeout(() => {
+    modal.style.display = "none";
+    orderMessage.innerHTML = "";
+    cart = [];
+    updateCart();
+  }, 3000);
+};
 
-  switch (direction) {
-    case "LEFT":  head.x -= box; break;
-    case "UP":    head.y -= box; break;
-    case "RIGHT": head.x += box; break;
-    case "DOWN":  head.y += box; break;
-  }
-
-  // التحقق من الاصطدام بالجدران
-  if (
-    head.x < 0 ||
-    head.y < 0 ||
-    head.x >= canvas.width ||
-    head.y >= canvas.height
-  ) {
-    gameOver();
-    return;
-  }
-
-  // التحقق من الاصطدام بالذات
-  for (let i = 0; i < snake.length; i++) {
-    if (head.x === snake[i].x && head.y === snake[i].y) {
-      gameOver();
-      return;
-    }
-  }
-
-  // إذا أكل الطعام
-  if (head.x === food.x && head.y === food.y) {
-    score++;
-    scoreElement.textContent = score;
-
-    // تحديث أعلى درجة
-    if (score > highScore) {
-      highScore = score;
-      highScoreElement.textContent = highScore;
-      localStorage.setItem("snakeHighScore", highScore);
-    }
-
-    // لا نزيل الذيل
-    food = {
-      x: Math.floor(Math.random() * 19 + 1) * box,
-      y: Math.floor(Math.random() * 19 + 1) * box
-    };
-  } else {
-    // إزالة الذيل
-    snake.pop();
-  }
-
-  // إضافة الرأس الجديد
-  snake.unshift(head);
-
-  // رسم كل شيء
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawSnake();
-  drawFood();
-}
-
-// نهاية اللعبة
-function gameOver() {
-  clearInterval(game);
-  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "30px Arial";
-  ctx.fillStyle = "white";
-  ctx.textAlign = "center";
-  ctx.fillText("انتهت اللعبة!", canvas.width / 2, canvas.height / 2 - 20);
-  ctx.font = "20px Arial";
-  ctx.fillText(`الدرجة: ${score}`, canvas.width / 2, canvas.height / 2 + 20);
-}
-
-// تشغيل اللعبة
-let game = setInterval(update, 150);
-
-// إعادة التشغيل
-restartBtn.addEventListener("click", () => {
-  direction = null;
-  snake = [{ x: 9 * box, y: 10 * box }];
-  score = 0;
-  scoreElement.textContent = score;
-  food = {
-    x: Math.floor(Math.random() * 19 + 1) * box,
-    y: Math.floor(Math.random() * 19 + 1) * box
-  };
-  clearInterval(game);
-  game = setInterval(update, 150);
+// التمرير السلس
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+      behavior: 'smooth'
+    });
+  });
 });
+
+// تحميل السلة من localStorage (اختياري)
+window.onload = () => {
+  displayMenu();
+  updateCart();
+};
