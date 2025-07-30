@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>شاشة الطلبات - ميمو إكسبريس</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* تصميم خاص بصفحة الطلبات */
+    .order-card {
+      padding: 15px;
+      margin: 15px 0;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      background: #f9f9f9;
+      font-size: 1.1rem;
+      line-height: 1.8;
+    }
+    .status {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 5px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+    .جديد { background: #e74c3c; }
+    .تحضير { background: #f39c12; }
+    .جاهز { background: #3498db; }
+    .توصيل { background: #2ecc71; }
+    .btn-status {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-status.جاهز { background: #3498db; color: white; }
+    .btn-status.توصيل { background: #2ecc71; color: white; }
+    .btn-status:hover { opacity: 0.9; }
+    #orders {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>شاشة الطلبات 🍔🚚</h1>
+    <p style="font-size: 1.1rem; color: #555;">
+      هنا تظهر جميع الطلبات التي تم إرسالها من العملاء.
+    </p>
+    <button onclick="loadOrders()" style="background:#3498db;color:white;padding:10px 20px;border:none;border-radius:5px; margin: 15px 0;">
+      🔄 تحديث الطلبات
+    </button>
+    <div id="orders">
+      <p>جاري تحميل الطلبات...</p>
+    </div>
+  </div>
+
+  <script>
+    // تحميل الطلبات من الذاكرة
+    function loadOrders() {
+      // جلب الطلبات من localStorage
+      const orders = JSON.parse(localStorage.getItem("memoOrders") || "[]");
+      const container = document.getElementById("orders");
+
+      // إذا ما في طلبات
+      if (orders.length === 0) {
+        container.innerHTML = "<p style='text-align: center; color: #888;'>لا توجد طلبات بعد.</p>";
+        return;
+      }
+
+      // نظف العرض القديم
+      container.innerHTML = "";
+
+      // اعكس القائمة لعرض أحدث طلب أولًا
+      orders.reverse().forEach(order => {
+        const card = document.createElement("div");
+        card.className = "order-card";
+
+        // أنشئ زر الحالة حسب الحالة الحالية
+        let statusBtns = '';
+        if (order.status !== 'توصيل') {
+          statusBtns = `
+            <button class="btn-status جاهز" onclick="updateStatus(${order.id}, 'جاهز')">جاهز</button>
+            <button class="btn-status توصيل" onclick="updateStatus(${order.id}, 'توصيل')">تم التوصيل</button>
+          `;
+        } else {
+          statusBtns = '<small style="color: green;">✅ تم التوصيل</small>';
+        }
+
+        // املأ البطاقة
+        card.innerHTML = `
+          <strong>الرقم:</strong> #${order.id.toString().slice(-4)} <br>
+          <strong>الاسم:</strong> ${order.name} <br>
+          <strong>الهاتف:</strong> <a href="tel:${order.phone}" style="color: #d32f2f;">${order.phone}</a> <br>
+          <strong>العنوان:</strong> ${order.address} <br>
+          <strong>الطلب:</strong> ${order.total} درهم <br>
+          <strong>الملاحظات:</strong> ${order.notes || "لا يوجد"} <br>
+          <strong>الوقت:</strong> ${order.timestamp} <br>
+          <hr>
+          <strong>الحالة:</strong> 
+          <span class="status ${order.status}">${order.status}</span>
+          <div style="margin-top: 10px;">
+            ${statusBtns}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // تحديث حالة الطلب
+    function updateStatus(id, newStatus) {
+      let orders = JSON.parse(localStorage.getItem("memoOrders") || "[]");
+      
+      // عدّل الحالة
+      orders = orders.map(order => {
+        if (order.id === id) {
+          order.status = newStatus;
+        }
+        return order;
+      });
+
+      // احفظ التغيير
+      localStorage.setItem("memoOrders", JSON.stringify(orders));
+      
+      // أخبر المستخدم
+      alert(`تم تحديث الحالة إلى: ${newStatus}`);
+      
+      // حدّث العرض
+      loadOrders();
+    }
+
+    // عند فتح الصفحة، اعرض الطلبات
+    window.onload = loadOrders;
+  </script>
+</body>
+</html>
