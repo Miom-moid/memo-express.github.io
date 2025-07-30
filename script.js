@@ -5,42 +5,36 @@ const menuItems = [
     name: "برجر لحم مع البطاطس",
     price: 45,
     image: "https://images.unsplash.com/photo-1571091718767-18b5b1457add?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    category: "برجر"
   },
   {
     id: 2,
     name: "بيتزا بeperoni",
     price: 60,
     image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    category: "بيتزا"
   },
   {
     id: 3,
     name: "سوشي ميكس",
     price: 80,
     image: "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    category: "سوشي"
   },
   {
     id: 4,
     name: "طبق كباب مشكل",
     price: 55,
     image: "https://images.unsplash.com/photo-1544025162-d7689ab5ce26?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    category: "مشاوي"
   },
   {
     id: 5,
     name: "سلطة سيزر بالدجاج",
     price: 35,
     image: "https://images.unsplash.com/photo-1546793665-c7879a16c573?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    category: "سلطة"
   },
   {
     id: 6,
     name: "كاساديا لحم",
     price: 50,
     image: "https://images.unsplash.com/photo-1583311590989-56370993c5dc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    category: "مكسيكي"
   }
 ];
 
@@ -98,16 +92,13 @@ function updateCart() {
   const totalPrice = document.getElementById("total-price");
   const checkoutBtn = document.getElementById("checkout-btn");
 
-  // تحديث العدد
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   cartCount.textContent = totalItems;
   cartItemsCount.textContent = totalItems;
 
-  // حساب الإجمالي
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   totalPrice.textContent = total;
 
-  // عرض العناصر
   if (cart.length === 0) {
     cartItems.innerHTML = '<p class="empty">سلتك فارغة.</p>';
     checkoutBtn.disabled = true;
@@ -134,29 +125,27 @@ function updateCart() {
   document.getElementById("final-total").textContent = total;
 }
 
-// نموذج التوصيل
-const modal = document.getElementById("checkout-modal");
-const closeModal = document.getElementById("close-modal");
-const orderForm = document.getElementById("order-form");
-const orderMessage = document.getElementById("order-message");
+// التمرير السلس
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+      behavior: 'smooth'
+    });
+  });
+});
 
-document.getElementById("checkout-btn").onclick = () => {
-  modal.style.display = "flex";
-};
+// حفظ الطلب في localStorage
+document.getElementById("order-form").onsubmit = (e) => {
+  e.preventDefault();
+  const name = document.getElementById("customer-name").value;
+  const address = document.getElementById("customer-address").value;
+  const phone = document.getElementById("customer-phone").value;
+  const notes = document.getElementById("order-notes").value;
+  const total = document.getElementById("final-total").textContent;
 
-closeModal.onclick = () => {
-  modal.style.display = "none";
-};
-
-window.onclick = (event) => {
-  if (event.target === modal) {
-    modal.style.display = "none";
-  }
-};
-
-  // بيانات الطلب
   const orderData = {
-    id: Date.now(), // رقم فريد
+    id: Date.now(),
     name,
     phone,
     address,
@@ -166,13 +155,11 @@ window.onclick = (event) => {
     timestamp: new Date().toLocaleString('ar-SA')
   };
 
-  // حفظ في الذاكرة
   let orders = JSON.parse(localStorage.getItem("memoOrders") || "[]");
   orders.push(orderData);
   localStorage.setItem("memoOrders", JSON.stringify(orders));
 
-  // رسالة نجاح
-  orderMessage.innerHTML = `
+  document.getElementById("order-message").innerHTML = `
     <p style="color: green;">
       تم تأكيد طلبك بنجاح، ${name}!<br>
       الإجمالي: ${total} درهم<br>
@@ -180,14 +167,16 @@ window.onclick = (event) => {
     </p>
   `;
 
-  // مسح النموذج
-  orderForm.reset();
-
-  // إغلاق النافذة وإعادة السلة
   setTimeout(() => {
     document.getElementById("checkout-modal").style.display = "none";
-    orderMessage.innerHTML = "";
+    document.getElementById("order-message").innerHTML = "";
     cart = [];
     updateCart();
   }, 2000);
+};
+
+// تشغيل عند تحميل الصفحة
+window.onload = () => {
+  displayMenu();
+  updateCart();
 };
