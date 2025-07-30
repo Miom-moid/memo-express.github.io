@@ -154,19 +154,27 @@ window.onclick = (event) => {
   }
 };
 
-orderForm.onsubmit = (e) => {
-  e.preventDefault();
-  const name = document.getElementById("customer-name").value;
-  const address = document.getElementById("customer-address").value;
-  const phone = document.getElementById("customer-phone").value;
-  const notes = document.getElementById("order-notes").value;
-  const total = document.getElementById("final-total").textContent;
+  // بيانات الطلب
+  const orderData = {
+    id: Date.now(), // رقم فريد
+    name,
+    phone,
+    address,
+    notes,
+    total,
+    status: "جديد",
+    timestamp: new Date().toLocaleString('ar-SA')
+  };
 
-  // محاكاة إرسال الطلب
+  // حفظ في الذاكرة
+  let orders = JSON.parse(localStorage.getItem("memoOrders") || "[]");
+  orders.push(orderData);
+  localStorage.setItem("memoOrders", JSON.stringify(orders));
+
+  // رسالة نجاح
   orderMessage.innerHTML = `
     <p style="color: green;">
       تم تأكيد طلبك بنجاح، ${name}!<br>
-      سيتم التوصيل إلى: ${address}<br>
       الإجمالي: ${total} درهم<br>
       شكرًا لاختيارك ميمو إكسبريس!
     </p>
@@ -174,26 +182,12 @@ orderForm.onsubmit = (e) => {
 
   // مسح النموذج
   orderForm.reset();
+
+  // إغلاق النافذة وإعادة السلة
   setTimeout(() => {
-    modal.style.display = "none";
+    document.getElementById("checkout-modal").style.display = "none";
     orderMessage.innerHTML = "";
     cart = [];
     updateCart();
-  }, 3000);
-};
-
-// التمرير السلس
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    e.preventDefault();
-    document.querySelector(this.getAttribute('href')).scrollIntoView({
-      behavior: 'smooth'
-    });
-  });
-});
-
-// تحميل السلة من localStorage (اختياري)
-window.onload = () => {
-  displayMenu();
-  updateCart();
+  }, 2000);
 };
